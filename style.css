@@ -33,6 +33,7 @@ body {
 }
 main { width: 100%; max-width: 480px; }
 h1 { font-size: 1.75rem; margin: 0 0 4px; }
+.owner { color: var(--muted); margin: 0 0 8px; font-size: 0.8rem; }
 .summary { color: var(--muted); margin: 0 0 24px; font-size: 0.9rem; }
 
 form { display: flex; gap: 8px; margin-bottom: 16px; }
