@@ -11,6 +11,7 @@
     <h1>jinsoo-kim의 할 일 목록</h1>
     <p class="owner">jinsoo-kim의 할 일</p>
     <p class="summary" id="summary"></p>
+    <p class="error" id="error" role="alert" hidden></p>
 
     <form id="add-form">
       <input type="text" id="new-todo" placeholder="할 일을 입력하세요" autocomplete="off" autofocus>
@@ -27,6 +28,8 @@
     <p class="empty" id="empty"></p>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

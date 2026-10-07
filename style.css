@@ -35,6 +35,14 @@ main { width: 100%; max-width: 480px; }
 h1 { font-size: 1.75rem; margin: 0 0 4px; }
 .owner { color: var(--muted); margin: 0 0 8px; font-size: 0.8rem; }
 .summary { color: var(--muted); margin: 0 0 24px; font-size: 0.9rem; }
+.error {
+  margin: -12px 0 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
 
 form { display: flex; gap: 8px; margin-bottom: 16px; }
 input[type="text"] {

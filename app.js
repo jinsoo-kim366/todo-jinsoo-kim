@@ -1,5 +1,7 @@
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
 let todos = [];
-let nextId = 1;
+let loading = true;
 let filter = 'all';
 let editingId = null;
 
@@ -15,25 +17,65 @@ const input = document.getElementById('new-todo');
 const list = document.getElementById('list');
 const empty = document.getElementById('empty');
 const summary = document.getElementById('summary');
+const errorBox = document.getElementById('error');
 
-form.addEventListener('submit', (e) => {
+function showError(action, error) {
+  errorBox.textContent = `${action} 실패했어요: ${error.message}`;
+  errorBox.hidden = false;
+}
+
+function clearError() {
+  errorBox.hidden = true;
+}
+
+async function load() {
+  const { data, error } = await db.from('todos').select('id, text, done').order('created_at').order('id');
+  loading = false;
+  if (error) {
+    showError('할 일을 불러오지', error);
+  } else {
+    todos = data;
+  }
+  render();
+}
+
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const text = input.value.trim();
   if (!text) return;
-  todos.push({ id: nextId++, text, done: false });
+  clearError();
+  const { data, error } = await db.from('todos').insert({ text }).select('id, text, done').single();
+  if (error) return showError('할 일을 추가하지', error);
+  todos.push(data);
   input.value = '';
   render();
 });
 
-function toggle(id) {
+async function toggle(id) {
   const todo = todos.find(t => t.id === id);
-  todo.done = !todo.done;
+  clearError();
+  const { error } = await db.from('todos').update({ done: !todo.done }).eq('id', id);
+  if (error) {
+    showError('완료 상태를 바꾸지', error);
+  } else {
+    todo.done = !todo.done;
+  }
   render();
 }
 
-function remove(id) {
+async function remove(id) {
+  clearError();
+  const { error } = await db.from('todos').delete().eq('id', id);
+  if (error) return showError('할 일을 삭제하지', error);
   todos = todos.filter(t => t.id !== id);
   render();
+}
+
+async function rename(id, text) {
+  clearError();
+  const { error } = await db.from('todos').update({ text }).eq('id', id);
+  if (error) return showError('할 일을 수정하지', error);
+  todos.find(t => t.id === id).text = text;
 }
 
 function startEdit(id) {
@@ -41,16 +83,16 @@ function startEdit(id) {
   render();
 }
 
-function finishEdit(id, text, save) {
+async function finishEdit(id, text, save) {
   if (editingId !== id) return;
   editingId = null;
-  if (save) {
-    const trimmed = text.trim();
+  const trimmed = text.trim();
+  if (save && trimmed !== todos.find(t => t.id === id).text) {
     if (trimmed) {
-      todos.find(t => t.id === id).text = trimmed;
+      await rename(id, trimmed);
     } else {
       // 내용을 모두 지우면 할 일도 삭제
-      todos = todos.filter(t => t.id !== id);
+      return remove(id);
     }
   }
   render();
@@ -116,10 +158,13 @@ function render() {
 
   const doneCount = todos.filter(t => t.done).length;
   empty.textContent = emptyMessages[filter];
-  empty.style.display = visible.length ? 'none' : 'block';
-  summary.textContent = todos.length
-    ? `전체 ${todos.length}개 · 완료 ${doneCount}개`
-    : '할 일을 추가해 보세요';
+  empty.style.display = visible.length || loading ? 'none' : 'block';
+  summary.textContent = loading
+    ? '불러오는 중…'
+    : todos.length
+      ? `전체 ${todos.length}개 · 완료 ${doneCount}개`
+      : '할 일을 추가해 보세요';
 }
 
 render();
+load();
