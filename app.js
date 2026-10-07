@@ -14,6 +14,7 @@ const emptyMessages = {
 
 const form = document.getElementById('add-form');
 const input = document.getElementById('new-todo');
+const authorInput = document.getElementById('author');
 const list = document.getElementById('list');
 const empty = document.getElementById('empty');
 const summary = document.getElementById('summary');
@@ -29,7 +30,7 @@ function clearError() {
 }
 
 async function load() {
-  const { data, error } = await db.from('todos').select('id, text, done').order('created_at').order('id');
+  const { data, error } = await db.from('todos').select('id, text, done, author').order('created_at').order('id');
   loading = false;
   if (error) {
     showError('할 일을 불러오지', error);
@@ -43,8 +44,9 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const text = input.value.trim();
   if (!text) return;
+  const author = authorInput.value.trim() || null;
   clearError();
-  const { data, error } = await db.from('todos').insert({ text }).select('id, text, done').single();
+  const { data, error } = await db.from('todos').insert({ text, author }).select('id, text, done, author').single();
   if (error) return showError('할 일을 추가하지', error);
   todos.push(data);
   input.value = '';
@@ -147,7 +149,15 @@ function render() {
     del.setAttribute('aria-label', '삭제');
     del.addEventListener('click', () => remove(todo.id));
 
-    li.append(checkbox, content, del);
+    li.append(checkbox, content);
+    if (todo.author) {
+      const author = document.createElement('span');
+      author.className = 'author';
+      author.textContent = todo.author;
+      author.title = `작성자: ${todo.author}`;
+      li.append(author);
+    }
+    li.append(del);
     list.append(li);
 
     if (editingId === todo.id) {

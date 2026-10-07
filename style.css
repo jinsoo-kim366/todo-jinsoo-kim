@@ -54,6 +54,8 @@ input[type="text"] {
   background: var(--card);
   color: var(--text);
 }
+input[type="text"] { min-width: 0; }
+input.author-input { flex: 0 0 110px; }
 input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 button.add {
   padding: 0 18px;
@@ -107,6 +109,19 @@ li input.edit {
   background: var(--bg);
   color: var(--text);
   outline: none;
+}
+li .author {
+  flex-shrink: 0;
+  max-width: 30%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 button.delete {
   border: none;
