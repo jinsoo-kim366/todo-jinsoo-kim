@@ -15,6 +15,7 @@ const emptyMessages = {
 const form = document.getElementById('add-form');
 const input = document.getElementById('new-todo');
 const authorInput = document.getElementById('author');
+const dueInput = document.getElementById('due-date');
 const list = document.getElementById('list');
 const empty = document.getElementById('empty');
 const summary = document.getElementById('summary');
@@ -30,7 +31,8 @@ function clearError() {
 }
 
 async function load() {
-  const { data, error } = await db.from('todos').select('id, text, done, author').order('created_at').order('id');
+  const { data, error } = await db.from('todos').select('id, text, done, author, due_date')
+    .order('due_date', { nullsFirst: false }).order('created_at').order('id');
   loading = false;
   if (error) {
     showError('할 일을 불러오지', error);
@@ -45,11 +47,14 @@ form.addEventListener('submit', async (e) => {
   const text = input.value.trim();
   if (!text) return;
   const author = authorInput.value.trim() || null;
+  const due_date = dueInput.value || null;
   clearError();
-  const { data, error } = await db.from('todos').insert({ text, author }).select('id, text, done, author').single();
+  const { data, error } = await db.from('todos').insert({ text, author, due_date })
+    .select('id, text, done, author, due_date').single();
   if (error) return showError('할 일을 추가하지', error);
   todos.push(data);
   input.value = '';
+  dueInput.value = '';
   render();
 });
 
@@ -108,11 +113,34 @@ filterButtons.forEach(btn => {
   });
 });
 
+// 마감이 가까운 순, 마감일 없는 할 일은 맨 아래 (같으면 추가한 순서)
+function byDueDate(a, b) {
+  if (a.due_date !== b.due_date) {
+    if (!a.due_date) return 1;
+    if (!b.due_date) return -1;
+    return a.due_date < b.due_date ? -1 : 1;
+  }
+  return a.id - b.id;
+}
+
+function dueLabel(dueDate) {
+  const [y, m, d] = dueDate.split('-').map(Number);
+  const today = new Date();
+  const days = Math.round(
+    (new Date(y, m - 1, d) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000
+  );
+  return {
+    text: days === 0 ? 'D-day' : days > 0 ? `D-${days}` : `D+${-days}`,
+    title: `${m}월 ${d}일 마감`,
+    state: days < 0 ? 'overdue' : days <= 2 ? 'soon' : '',
+  };
+}
+
 function render() {
   list.innerHTML = '';
   const visible = todos.filter(t =>
     filter === 'all' || (filter === 'done' ? t.done : !t.done)
-  );
+  ).sort(byDueDate);
 
   for (const todo of visible) {
     const li = document.createElement('li');
@@ -150,6 +178,15 @@ function render() {
     del.addEventListener('click', () => remove(todo.id));
 
     li.append(checkbox, content);
+    if (todo.due_date) {
+      const label = dueLabel(todo.due_date);
+      const due = document.createElement('span');
+      due.className = 'due';
+      if (label.state) due.classList.add(label.state);
+      due.textContent = label.text;
+      due.title = label.title;
+      li.append(due);
+    }
     if (todo.author) {
       const author = document.createElement('span');
       author.className = 'author';

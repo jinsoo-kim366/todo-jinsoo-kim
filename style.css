@@ -44,8 +44,8 @@ h1 { font-size: 1.75rem; margin: 0 0 4px; }
   font-size: 0.9rem;
 }
 
-form { display: flex; gap: 8px; margin-bottom: 16px; }
-input[type="text"] {
+form { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+input[type="text"], input[type="date"] {
   flex: 1;
   padding: 12px 14px;
   font-size: 1rem;
@@ -55,8 +55,10 @@ input[type="text"] {
   color: var(--text);
 }
 input[type="text"] { min-width: 0; }
-input.author-input { flex: 0 0 110px; }
-input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+#new-todo { flex: 1 1 120px; }
+input.author-input { flex: 0 0 90px; }
+input.due-input { flex: 0 0 auto; padding: 0 8px; font-size: 0.9rem; font-family: inherit; }
+input[type="text"]:focus, input[type="date"]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 button.add {
   padding: 0 18px;
   font-size: 1rem;
@@ -123,6 +125,18 @@ li .author {
   color: var(--muted);
   font-size: 0.8rem;
 }
+li .due {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+li .due.soon { color: var(--accent); border-color: var(--accent); }
+li .due.overdue { color: var(--danger); border-color: var(--danger); }
+li.done .due { color: var(--done); border-color: var(--border); }
 button.delete {
   border: none;
   background: none;
