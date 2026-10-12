@@ -159,6 +159,8 @@ function render() {
       content.className = 'edit';
       content.value = todo.text;
       content.addEventListener('keydown', (e) => {
+        // 한글 조합 중에 누른 Enter/Esc는 글자 조합을 끝내는 키라서 무시
+        if (e.isComposing) return;
         if (e.key === 'Enter') finishEdit(todo.id, content.value, true);
         if (e.key === 'Escape') finishEdit(todo.id, content.value, false);
       });
