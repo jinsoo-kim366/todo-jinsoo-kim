@@ -211,7 +211,7 @@ function render() {
   summary.textContent = loading
     ? '불러오는 중…'
     : todos.length
-      ? `전체 ${todos.length}개 · 완료 ${doneCount}개`
+      ? `전체 ${todos.length}개 · 남은 ${todos.length - doneCount}개 · 완료 ${doneCount}개`
       : '할 일을 추가해 보세요';
 }
 
