@@ -7,9 +7,11 @@
   --border: #e3e6ea;
   --accent: #3b6cf6;
   --danger: #e5484d;
+  color-scheme: light;
 }
+/* 다크: '자동'일 때는 컴퓨터 설정을 따르고, '다크'를 고르면 항상 적용 */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #16181c;
     --card: #1f2227;
     --text: #e8eaed;
@@ -18,7 +20,19 @@
     --border: #30343a;
     --accent: #6b8cff;
     --danger: #ff6b6f;
+    color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #16181c;
+  --card: #1f2227;
+  --text: #e8eaed;
+  --muted: #8b929c;
+  --done: #5c626b;
+  --border: #30343a;
+  --accent: #6b8cff;
+  --danger: #ff6b6f;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body {
@@ -31,8 +45,42 @@ body {
   justify-content: center;
   padding: 48px 16px;
 }
-main { width: 100%; max-width: 480px; }
-h1 { font-size: 1.75rem; margin: 0 0 4px; }
+/* 넓은 화면: 목록 오른쪽에 조언 칸 / 좁은 화면: 제목 아래로 */
+main {
+  width: 100%;
+  max-width: 720px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  grid-template-areas:
+    "head ."
+    "app tips";
+  column-gap: 24px;
+}
+.head { grid-area: head; }
+.app { grid-area: app; }
+.tips { grid-area: tips; align-self: start; position: sticky; top: 48px; }
+@media (max-width: 760px) {
+  main {
+    max-width: 480px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "head" "tips" "app";
+  }
+  .tips { position: static; margin-bottom: 16px; }
+}
+.title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+h1 { font-size: 1.75rem; margin: 0; }
+button.theme {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+button.theme:hover { border-color: var(--accent); }
 .owner { color: var(--muted); margin: 0 0 8px; font-size: 0.8rem; }
 .summary { color: var(--muted); margin: 0 0 24px; font-size: 0.9rem; }
 .error {
@@ -149,3 +197,19 @@ button.delete {
 }
 button.delete:hover { color: var(--danger); background: var(--bg); }
 .empty { text-align: center; color: var(--muted); padding: 32px 0; }
+
+.tips {
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.tips-label { margin: 0 0 8px; color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+.tips-text { margin: 0; font-size: 0.9rem; line-height: 1.5; min-height: 4.5em; word-break: keep-all; }
+.tips-dots { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.tips-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+.tips-dots span.active { background: var(--accent); }
+@media (prefers-reduced-motion: no-preference) {
+  .tips-text { transition: opacity 0.4s; }
+  .tips-text.fade { opacity: 0; }
+}

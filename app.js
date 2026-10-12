@@ -215,5 +215,75 @@ function render() {
       : '할 일을 추가해 보세요';
 }
 
+// 공부 조언: 10초마다 부드럽게 다음 조언으로 바뀜
+const tips = [
+  '25분 집중하고 5분 쉬어 보세요.',
+  '큰 일은 30분 안에 끝낼 수 있는 작은 일로 나눠 보세요.',
+  '책을 덮고 배운 내용을 떠올려 보면 더 오래 기억나요.',
+  '공부할 때는 휴대폰을 다른 방에 두세요.',
+  '어제 배운 것을 5분만 다시 보면 훨씬 덜 잊어버려요.',
+  '친구에게 설명하듯 말해 보면 모르는 부분이 보여요.',
+  '가장 하기 싫은 일을 가장 먼저 해 보세요.',
+  '잠을 충분히 자야 배운 내용이 머릿속에 남아요.',
+  '시작이 어렵다면 딱 5분만 해 보자고 마음먹어 보세요.',
+  '오늘 꼭 끝낼 일 세 가지만 정해 보세요.',
+  '한 시간마다 일어나서 물 한 잔 마시고 몸을 움직여 보세요.',
+  '틀린 문제는 왜 틀렸는지 한 줄로 적어 두세요.',
+];
+const TIP_INTERVAL = 10000;
+const TIP_FADE = 400;
+
+const tipText = document.getElementById('tip');
+const tipDots = document.getElementById('tip-dots');
+let tipIndex = Math.floor(Math.random() * tips.length);
+
+for (let i = 0; i < tips.length; i++) {
+  tipDots.append(document.createElement('span'));
+}
+
+function showTip() {
+  tipText.textContent = tips[tipIndex];
+  [...tipDots.children].forEach((dot, i) => dot.classList.toggle('active', i === tipIndex));
+}
+
+setInterval(() => {
+  tipText.classList.add('fade');
+  setTimeout(() => {
+    tipIndex = (tipIndex + 1) % tips.length;
+    showTip();
+    tipText.classList.remove('fade');
+  }, TIP_FADE);
+}, TIP_INTERVAL);
+
+// 화면 색: 누를 때마다 자동 → 라이트 → 다크 순서로 바뀌고, 고른 색은 기억해 둠
+const themeButton = document.getElementById('theme');
+const themes = ['auto', 'light', 'dark'];
+const themeNames = { auto: '자동', light: '라이트', dark: '다크' };
+const themeIcons = { auto: '💻', light: '☀️', dark: '🌙' };
+let theme = document.documentElement.dataset.theme || 'auto';
+
+function applyTheme() {
+  if (theme === 'auto') {
+    delete document.documentElement.dataset.theme;
+  } else {
+    document.documentElement.dataset.theme = theme;
+  }
+  themeButton.textContent = `${themeIcons[theme]} ${themeNames[theme]}`;
+  themeButton.setAttribute('aria-label', `화면 색: ${themeNames[theme]} (누르면 바뀜)`);
+  themeButton.title = '누르면 화면 색이 바뀌어요';
+}
+
+themeButton.addEventListener('click', () => {
+  theme = themes[(themes.indexOf(theme) + 1) % themes.length];
+  applyTheme();
+  try {
+    localStorage.setItem('theme', theme);
+  } catch (e) {
+    // 저장이 막힌 브라우저에서는 이번에만 적용
+  }
+});
+
+applyTheme();
+showTip();
 render();
 load();

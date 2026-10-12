@@ -5,29 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>할 일 목록</title>
   <link rel="stylesheet" href="style.css">
+  <script>
+    // 저장해 둔 화면 색을 그리기 전에 먼저 적용 (깜빡임 방지)
+    try { const t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
 </head>
 <body>
   <main>
-    <h1>jinsoo-kim의 할 일 목록</h1>
-    <p class="owner">jinsoo-kim의 할 일</p>
-    <p class="summary" id="summary"></p>
-    <p class="error" id="error" role="alert" hidden></p>
+    <header class="head">
+      <div class="title-row">
+        <h1>jinsoo-kim의 할 일 목록</h1>
+        <button type="button" class="theme" id="theme"></button>
+      </div>
+      <p class="owner">jinsoo-kim의 할 일</p>
+      <p class="summary" id="summary"></p>
+      <p class="error" id="error" role="alert" hidden></p>
+    </header>
 
-    <form id="add-form">
-      <input type="text" id="new-todo" placeholder="할 일을 입력하세요" autocomplete="off" autofocus>
-      <input type="text" id="author" class="author-input" placeholder="이름(선택)" autocomplete="off" maxlength="20" aria-label="작성자 이름(선택)">
-      <input type="date" id="due-date" class="due-input" aria-label="마감일(선택)" title="마감일(선택)">
-      <button type="submit" class="add">추가</button>
-    </form>
+    <aside class="tips" aria-label="공부 조언">
+      <p class="tips-label">💡 공부 조언</p>
+      <p class="tips-text" id="tip"></p>
+      <div class="tips-dots" id="tip-dots" aria-hidden="true"></div>
+    </aside>
 
-    <div class="filters" id="filters">
-      <button type="button" data-filter="all" class="active">전체</button>
-      <button type="button" data-filter="active">진행 중</button>
-      <button type="button" data-filter="done">완료</button>
-    </div>
+    <section class="app">
+      <form id="add-form">
+        <input type="text" id="new-todo" placeholder="할 일을 입력하세요" autocomplete="off" autofocus>
+        <input type="text" id="author" class="author-input" placeholder="이름(선택)" autocomplete="off" maxlength="20" aria-label="작성자 이름(선택)">
+        <input type="date" id="due-date" class="due-input" aria-label="마감일(선택)" title="마감일(선택)">
+        <button type="submit" class="add">추가</button>
+      </form>
 
-    <ul id="list"></ul>
-    <p class="empty" id="empty"></p>
+      <div class="filters" id="filters">
+        <button type="button" data-filter="all" class="active">전체</button>
+        <button type="button" data-filter="active">진행 중</button>
+        <button type="button" data-filter="done">완료</button>
+      </div>
+
+      <ul id="list"></ul>
+      <p class="empty" id="empty"></p>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
